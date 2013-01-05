@@ -1,13 +1,13 @@
 <?php
 /**
- * Custom Alerts for MyAlerts 1.0
+ * Custom Alerts for MyAlerts 1.0.1
  * 
  * Provides the ability to push custom alerts for @euantor's MyAlerts plugin.
  *
- * @package Custom Alerts for MyAlerts 1.0
+ * @package Custom Alerts for MyAlerts 1.0.1
  * @author  Shade <legend_k@live.it>
  * @license http://opensource.org/licenses/mit-license.php MIT license (same as MyAlerts)
- * @version 1.0
+ * @version 1.0.1
  * @module MYBB_ROOT/admin/modules/user/customalerts.php
  */
  
@@ -38,66 +38,215 @@ if($mybb->input['action'] == "documentation") {
 	// generate the tab
 	generate_tabs("documentation");
 }
-// Push a new alert, single user
-elseif($mybb->input['action'] == "pushsingle") {
-	if($mybb->request_method == "post") {		
-		// does this user even exists?
-		$user_exists = user_exists($mybb->input['uid']);
-		if(!$user_exists OR empty($mybb->input['uid'])) {
-			flash_message($lang->customalerts_error_nouid, 'error');
-			admin_redirect("index.php?module=".MODULE."&amp;action=pushsingle");
-		}
+// Push a new alert directly
+elseif($mybb->input['action'] == "pushalert") {
+	if($mybb->request_method == "post") {
 		
-		if(empty($mybb->input['text'])) {
-			flash_message($lang->customalerts_error_notext, 'error');
-			admin_redirect("index.php?module=".MODULE."&amp;action=pushsingle");
-		}
-		
-		$userID = intval($mybb->input['uid']);
-		$alertText = htmlspecialchars($mybb->input['text']);
+		// cleaning up the code!
+		$conditions = $mybb->input['conditions'];
 		$forced = $mybb->input['forced'];
+		$userID = $mybb->input['uids'];
+		$usergroups = $mybb->input['group'];
+		$text = $mybb->input['text'];
 		
-		// we're in ACP baby!
-		require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';
-		try
-		{
+		// errors
+		// no conditions
+		if(!$conditions) {
+			$errors[] = $lang->customalerts_error_noconditions;
+		}
+		if(is_array($conditions)) {
+			// no/unexisting UIDs
+			if(in_array('uid', $conditions)) {
+				
+				// clean up the string from whitespaces
+				$userID = preg_replace("/[^0-9,]/", "", $userID);
+				// split them in an array and clean it up
+				$_users = array_values(array_filter(explode(",", $userID)));
+				
+				if(empty($_users)) {
+					$errors[] = $lang->customalerts_error_nouid;
+				}
+				
+				// does those users even exist?
+				foreach ($_users as $user) {
+					$user_exists = user_exists($user);
+					if(!$user_exists) {
+						$errors[] = $lang->customalerts_error_noexistinguid;
+						break;
+					}
+				}
+			}
+			// no usergroups
+			if(in_array('usergroup', $conditions) AND empty($usergroups)) {
+				$errors[] = $lang->customalerts_error_nogroup;
+			}
+		}
+		// no text
+		if(empty($text)) {
+			$errors[] = $lang->customalerts_error_notext;
+		}
+		if(!$errors) {
+			// we're in ACP baby!
+			require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';
 			$Alerts = new Alerts($mybb, $db);
-		}
-		catch (Exception $e)
-		{
-			die($e->getMessage());
-		}
-		
-		// add the alert
-		$Alerts->addAlert((int) $userID, "custom", 0, (int) $mybb->user['uid'], array(
-		'text'  =>  $alertText,
-		), $forced);
-		
-		// output a friendly successful message
-		if($forced) {
-			flash_message($lang->customalerts_success_forced, 'success');
-			admin_redirect("index.php?module=".MODULE."&amp;action=pushsingle");
-		}
-		else {
-			flash_message($lang->customalerts_success, 'success');
-			admin_redirect("index.php?module=".MODULE."&amp;action=pushsingle");
-		}
 			
+			$alertText = htmlspecialchars($text);
+			
+			// UID but no usergroup
+			if(in_array('uid', $conditions) AND !in_array('usergroup', $conditions)) {
+				// clean up the string from whitespaces
+				$userID = preg_replace("/[^0-9,]/", "", $userID);
+				// split them in an array and clean it up
+				$_users = array_values(array_filter(explode(",", $userID)));
+				
+				$uids = "'".implode("','", $_users)."'";
+				$query = $db->simple_select("users", "uid, myalerts_settings", "uid IN ({$uids})");
+				// let's check whether if the user would like to receive custom alerts, or if the alert is forced
+				$users = array();
+				$userSettings = array();
+				while ($user = $db->fetch_array($query)) {
+					$userSettings[$user['uid']] = json_decode($user['myalerts_settings'], true);
+					if ($userSettings[$user['uid']]['custom'] OR $forced) {
+						$users[] = $user['uid'];
+					}
+				}
+		
+				// add the alert
+				if (!empty($users)) {
+					$Alerts->addMassAlert((array) $users, "custom", 0, (int) $mybb->user['uid'], array(
+					'text'  =>  $alertText,
+					), $forced);
+				}
+				// oops, no users here
+				else {
+					$errors[] = $lang->customalerts_error_nousers;
+				}
+				
+				// errors won't stop here
+				if(!$errors) {
+					// output a friendly successful message
+					if($forced) {
+						flash_message($lang->customalerts_success_forced, 'success');
+						admin_redirect("index.php?module=".MODULE."&amp;action=pushalert");
+					}
+					else {
+						flash_message($lang->customalerts_success, 'success');
+						admin_redirect("index.php?module=".MODULE."&amp;action=pushalert");
+					}
+				}
+			}
+			// usergroup but no UID
+			elseif(in_array('usergroup', $conditions) AND !in_array('uid', $conditions)) {
+				$usergroups = "'".implode("','", $usergroups)."'";
+				$query = $db->simple_select("users", "uid, myalerts_settings", "usergroup IN ({$usergroups})");
+				
+				// let's check whether if the user would like to receive custom alerts, or if the alert is forced
+				$users = array();
+				$userSettings = array();
+				while ($user = $db->fetch_array($query)) {
+					$userSettings[$user['uid']] = json_decode($user['myalerts_settings'], true);
+					if ($userSettings[$user['uid']]['custom'] OR $forced) {
+						$users[] = $user['uid'];
+					}
+				}
+		
+				// add the alert
+				if (!empty($users)) {
+					$Alerts->addMassAlert((array) $users, "custom", 0, (int) $mybb->user['uid'], array(
+					'text'  =>  $alertText,
+					), $forced);
+				}
+				// oops, no users here
+				else {
+					$errors[] = $lang->customalerts_error_nousers;
+				}
+				
+				// errors won't stop here
+				if(!$errors) {
+					// output a friendly successful message
+					if($forced) {
+						flash_message($lang->customalerts_success_group_forced, 'success');
+						admin_redirect("index.php?module=".MODULE."&amp;action=pushalert");
+					}
+					else {
+						flash_message($lang->customalerts_success_group, 'success');
+						admin_redirect("index.php?module=".MODULE."&amp;action=pushalert");
+					}
+				}
+			}
+			// both of them
+			elseif(in_array('uid', $conditions) AND in_array('usergroup', $conditions)) {
+				$usergroups = "'".implode("','", $usergroups)."'";
+				$userID = intval($userID);
+				$userID = "'".$userID."'";
+				$query = $db->simple_select("users", "uid, myalerts_settings", "usergroup IN ({$usergroups}) AND uid IN ({$userID})");
+				
+				// let's check whether if the user would like to receive custom alerts, or if the alert is forced
+				$users = array();
+				$userSettings = array();
+				while ($user = $db->fetch_array($query)) {
+					$userSettings[$user['uid']] = json_decode($user['myalerts_settings'], true);
+					if ($userSettings[$user['uid']]['custom'] OR $forced) {
+						$users[] = $user['uid'];
+					}
+				}
+		
+				// add the alert
+				if (!empty($users)) {
+					$Alerts->addMassAlert((array) $users, "custom", 0, (int) $mybb->user['uid'], array(
+					'text'  =>  $alertText,
+					), $forced);
+				}
+				// oops, no users here
+				else {
+					$errors[] = $lang->customalerts_error_nousers;
+				}
+				
+				// errors won't stop here
+				if(!$errors) {
+					// output a friendly successful message
+					if($forced) {
+						flash_message($lang->customalerts_success_uidandgroup_forced, 'success');
+						admin_redirect("index.php?module=".MODULE."&amp;action=pushalert");
+					}
+					else {
+						flash_message($lang->customalerts_success_uidandgroup, 'success');
+						admin_redirect("index.php?module=".MODULE."&amp;action=pushalert");
+					}
+				}
+			}
+			else {
+				flash_message($lang->customalerts_error_debug, 'error');
+				admin_redirect("index.php?module=".MODULE."&amp;action=pushalert");
+			}
+		}
 	}
+	// header before anything else
 	$page->output_header($lang->customalerts);
+	// errors
+	if($errors) {
+		$page->output_inline_error($errors);
+	}
 	// generate the tab
 	generate_tabs("pushalerts");
 	// construct the main form
-	$form = new Form("index.php?module=".MODULE."&amp;action=pushsingle", "post");
+	$form = new Form("index.php?module=".MODULE."&amp;action=pushalert", "post");
 	$form_container = new FormContainer($lang->customalerts_pushalerts);
-
+	
 	// store things in variables to clean up the code
-	$uid = $form->generate_text_box('uid', $mybb->input['uid']);
-	$text = $form->generate_text_area('text', $mybb->input['text']);
+	$conditions_list = array(
+				"uid" => $lang->customalerts_uid,
+				"usergroup" => $lang->customalerts_group);
+	$add_conditions = $form->generate_select_box("conditions[]", $conditions_list, $conditions, array("multiple"=>true, "id"=>"conditions"));
+	$uid = $form->generate_text_box('uids', $userID);
+	$text = $form->generate_text_area('text', $text);
 	$options = $form->generate_check_box('forced', '1', $lang->customalerts_options_forceonuser, array('checked' => 1, 'id' => 'forced'))."<br /><small>{$lang->customalerts_options_forceonuser_desc}</small>";
+	$group = $form->generate_group_select("group[]", $usergroups, array("multiple"=>true));
 
 	// actually construct the form
-	$form_container->output_row($lang->customalerts_uid, $lang->customalerts_uid_desc, $uid, 'uid');
+	$form_container->output_row($lang->customalerts_add_conditions." <em>*</em>", $lang->customalerts_add_conditions_desc, $add_conditions);
+	$form_container->output_row($lang->customalerts_uid, $lang->customalerts_uid_desc, $uid, 'uid', array(), array('id' => 'uid'));
+	$form_container->output_row($lang->customalerts_group, $lang->customalerts_group_desc, $group, 'group', array(), array('id' => 'usergroup'));
 	$form_container->output_row($lang->customalerts_text, $lang->customalerts_text_desc, $text, 'text');
 	$form_container->output_row($lang->customalerts_options, "", $options, 'options');
 		
@@ -108,89 +257,19 @@ elseif($mybb->input['action'] == "pushsingle") {
 	$form->output_submit_wrapper($buttons);
 		
 	$form->end();
-}
-// Push a new alert, usergroup
-elseif($mybb->input['action'] == "pushgroup") {
-	if($mybb->request_method == "post") {		
 	
-		if(empty($mybb->input['group'])) {
-			flash_message($lang->customalerts_error_nogroup, 'error');
-			admin_redirect("index.php?module=".MODULE."&amp;action=pushgroup");
-		}
-		
-		if(empty($mybb->input['text'])) {
-			flash_message($lang->customalerts_error_notext, 'error');
-			admin_redirect("index.php?module=".MODULE."&amp;action=pushgroup");
-		}
-		
-		$forced = $mybb->input['forced'];
-		$usergroups = "'".implode("','", $mybb->input['group'])."'";
-		$query = $db->simple_select("users", "uid, myalerts_settings", "usergroup IN ({$usergroups})");
-				
-		$users = array();
-		$userSettings = array();
-		while ($user = $db->fetch_array($query)) {
-			$userSettings[$user['uid']] = json_decode($user['myalerts_settings'], true);
-			if ($userSettings[$user['uid']]['custom'] OR $forced) {
-				$users[] = $user['uid'];
+	echo '<script type="text/javascript" src="./jscripts/customalerts_peeker.js"></script>
+		<script type="text/javascript">
+			Event.observe(window, "load", function() {
+				loadPeekers();
+			});
+			function loadPeekers()
+			{
+				new Peeker($("conditions"), $("uid"), /uid/, false);
+				new Peeker($("conditions"), $("usergroup"), /usergroup/, false);
 			}
-		}
-		
-		$alertText = htmlspecialchars($mybb->input['text']);
-		
-		// we're in ACP baby!
-		require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';
-		try
-		{
-			$Alerts = new Alerts($mybb, $db);
-		}
-		catch (Exception $e)
-		{
-			die($e->getMessage());
-		}
-		
-		// add the alert
-		if (!empty($users)) {
-			$Alerts->addMassAlert((array) $users, "custom", 0, (int) $mybb->user['uid'], array(
-			'text'  =>  $alertText,
-			), $forced);
-		}
-		
-		// output a friendly successful message
-		if($forced) {
-			flash_message($lang->customalerts_success_group_forced, 'success');
-			admin_redirect("index.php?module=".MODULE."&amp;action=pushgroup");
-		}
-		else {
-			flash_message($lang->customalerts_success_group, 'success');
-			admin_redirect("index.php?module=".MODULE."&amp;action=pushgroup");
-		}
-			
-	}
-	$page->output_header($lang->customalerts);
-	// generate the tab
-	generate_tabs("pushalertsgroup");
-	// construct the main form
-	$form = new Form("index.php?module=".MODULE."&amp;action=pushgroup", "post");
-	$form_container = new FormContainer($lang->customalerts_pushalertsgroup);
+		</script>';
 	
-	// store things in variables to clean up the code
-	$group = $form->generate_group_select("group[]", $mybb->input['group'], array("multiple"=>true));
-	$text = $form->generate_text_area('text', $mybb->input['text']);
-	$options = $form->generate_check_box('forced', '1', $lang->customalerts_options_forceonuser, array('checked' => 1, 'id' => 'forced'))."<br /><small>{$lang->customalerts_options_forceonuser_desc}</small>";
-	
-	// actually construct the form
-	$form_container->output_row($lang->customalerts_group, $lang->customalerts_group_desc, $group, 'group');
-	$form_container->output_row($lang->customalerts_text, $lang->customalerts_text_desc, $text, 'text');
-	$form_container->output_row($lang->customalerts_options, "", $options, 'options');
-	
-	$form_container->end();
-	
-	$buttons[] = $form->generate_submit_button($lang->customalerts_push_group_button);
-
-	$form->output_submit_wrapper($buttons);
-	
-	$form->end();
 }
 // Overview
 else {
@@ -229,13 +308,8 @@ function generate_tabs($selected)
 	);
 	$sub_tabs['pushalerts'] = array(
 		'title' => $lang->customalerts_pushalerts,
-		'link' => "index.php?module=".MODULE."&amp;action=pushsingle",
+		'link' => "index.php?module=".MODULE."&amp;action=pushalert",
 		'description' => $lang->customalerts_pushalerts_desc
-	);
-	$sub_tabs['pushalertsgroup'] = array(
-		'title' => $lang->customalerts_pushalertsgroup,
-		'link' => "index.php?module=".MODULE."&amp;action=pushgroup",
-		'description' => $lang->customalerts_pushalertsgroup_desc
 	);
 	$sub_tabs['documentation'] = array(
 		'title' => $lang->customalerts_documentation,
@@ -245,4 +319,3 @@ function generate_tabs($selected)
 
 	$page->output_nav_tabs($sub_tabs, $selected);
 }
-

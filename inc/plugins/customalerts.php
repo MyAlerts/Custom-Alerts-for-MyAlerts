@@ -1,13 +1,13 @@
 <?php
 /**
- * Custom Alerts for MyAlerts 1.0
+ * Custom Alerts for MyAlerts 1.0.1
  * 
  * Provides the ability to push custom alerts for @euantor's MyAlerts plugin.
  *
- * @package Custom Alerts for MyAlerts 1.0
+ * @package Custom Alerts for MyAlerts 1.0.1
  * @author  Shade <legend_k@live.it>
  * @license http://opensource.org/licenses/mit-license.php MIT license (same as MyAlerts)
- * @version 1.0
+ * @version 1.0.1
  */
  
 if (!defined('IN_MYBB'))
@@ -28,7 +28,7 @@ function customalerts_info()
 		'website'       =>  'http://idevicelab.net',
 		'author'        =>  'Shade',
 		'authorsite'    =>  'http://idevicelab.net',
-		'version'       =>  '1.0',
+		'version'       =>  '1.0.1',
 		'compatibility' =>  '16*',
 		'guid'           =>  'none... yet!',
 		);
