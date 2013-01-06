@@ -149,6 +149,10 @@ elseif($mybb->input['action'] == "pushalert") {
 			if(in_array('users', $methods)) {
 				$users_users = $users;
 			}
+			// all
+			if(in_array('all', $methods)) {
+				$all = 1;
+			}
 			
 			// having some fun with arrays!
 			settype($users_uid, "array");
@@ -158,7 +162,12 @@ elseif($mybb->input['action'] == "pushalert") {
 			$users = "uid IN ({$uids})";
 			
 			// our main query
-			$query = $db->simple_select("users", "uid, myalerts_settings", "{$users}{$separator}{$usergroups}");
+			if($all) {
+				$query = $db->simple_select("users", "uid, myalerts_settings");
+			}
+			else {
+				$query = $db->simple_select("users", "uid, myalerts_settings", "{$users}{$separator}{$usergroups}");
+			}
 							
 			// let's check whether if the user would like to receive custom alerts, or if the alert is forced
 			$users = array();
@@ -213,7 +222,8 @@ elseif($mybb->input['action'] == "pushalert") {
 	$methods_list = array(
 				"uid" => $lang->customalerts_uid,
 				"usergroup" => $lang->customalerts_group,
-				"users" => $lang->customalerts_users);
+				"users" => $lang->customalerts_users,
+				"all" => $lang->customalerts_all);
 	$add_methods = $form->generate_select_box("methods[]", $methods_list, $methods, array("multiple"=>true, "id"=>"methods"));
 	$uid = $form->generate_text_box('uids', $userID);
 	$text = $form->generate_text_area('text', $text);
@@ -229,10 +239,13 @@ elseif($mybb->input['action'] == "pushalert") {
 
 	// actually construct the form
 	$form_container->output_row($lang->customalerts_add_methods." <em>*</em>", $lang->customalerts_add_methods_desc, $add_methods);
+	// methods
 	$form_container->output_row($lang->customalerts_uid, $lang->customalerts_uid_desc, $uid, 'uid', array(), array('id' => 'uid'));
 	$form_container->output_row($lang->customalerts_users, $lang->customalerts_users_desc, $users, 'users', array(), array('id' => 'users'));
 	$form_container->output_row($lang->customalerts_group, $lang->customalerts_group_desc, $group, 'group', array(), array('id' => 'usergroup'));
+	// text
 	$form_container->output_row($lang->customalerts_text, $lang->customalerts_text_desc, $text, 'text');
+	// options
 	$form_container->output_row($lang->customalerts_options, "", $options, 'options');
 		
 	$form_container->end();

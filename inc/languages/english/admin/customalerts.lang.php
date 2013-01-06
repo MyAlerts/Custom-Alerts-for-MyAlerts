@@ -13,6 +13,7 @@ $l['customalerts_documentation_desc'] = "Full documentation on how to use MyAler
 $l['customalerts_push_button'] = "Alert those user(s)";
 
 // forms & pages stuff
+$l['customalerts_all'] = "Alert all users";
 $l['customalerts_uid'] = "Alert by user ID(s)";
 $l['customalerts_uid_desc'] = "Enter the user IDs you would like to push the alert to. You might insert more than one UID, separated with a coma. Your input will be sanitized and the system will check if any of UIDs entered is invalid. If so, you'll be notified.";
 $l['customalerts_text'] = "Alert text";
