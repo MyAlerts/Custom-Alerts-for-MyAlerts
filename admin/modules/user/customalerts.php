@@ -25,6 +25,10 @@ if(!defined("PLUGINLIBRARY"))
 define(MODULE, "user-customalerts");
 
 $PL or require_once PLUGINLIBRARY;
+// require useful class
+require_once  MYBB_ROOT."inc/class_parser.php";
+$parser = new postParser;
+
 $lang->load("customalerts");
 
 // Breadcrumb
@@ -32,11 +36,37 @@ $page->add_breadcrumb_item($lang->customalerts, "index.php?module=".MODULE);
 
 // Begin!
 // Docs
-if($mybb->input['action'] == "documentation") {
-	
+if($mybb->input['action'] == "documentation") {	
+	// Breadcrumb
+	$page->add_breadcrumb_item($lang->customalerts_documentation, "index.php?module=".MODULE."&amp;action=documentation");	
 	$page->output_header($lang->customalerts);
 	// generate the tab
 	generate_tabs("documentation");
+	
+	// construct the main table
+	$table = new Table;
+	
+	// actually construct the table header
+	$table->construct_header($lang->customalerts_doc_info, array("width"=>"25%"));
+	$table->construct_header($lang->customalerts_doc_description);
+	
+	// overview
+	$table->construct_cell($lang->customalerts_doc_overview);
+	$table->construct_cell($lang->customalerts_doc_overview_desc);
+	$table->construct_row();
+	
+	// features
+	$table->construct_cell($lang->customalerts_doc_features);
+	$table->construct_cell($lang->customalerts_doc_features_desc);
+	$table->construct_row();
+	
+	// new alert
+	$table->construct_cell($lang->customalerts_doc_newalert);
+	$table->construct_cell($lang->customalerts_doc_newalert_desc);
+	$table->construct_row();
+	
+	// output it!
+	$table->output($lang->customalerts_documentation);
 }
 // Push a new alert directly
 elseif($mybb->input['action'] == "pushalert") {
@@ -90,7 +120,14 @@ elseif($mybb->input['action'] == "pushalert") {
 			require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';
 			$Alerts = new Alerts($mybb, $db);
 			
-			$alertText = htmlspecialchars($text);
+			$rules_parser = array(
+               "allow_html" => 1,
+               "allow_mycode" => 1,
+               "allow_smilies" => 1,
+               "allow_imgcode" => 1
+            );
+			
+			$alertText = $parser->parse_message($text, $rules_parser);
 			
 			// UIDs
 			if(in_array('uid', $methods)) {
@@ -158,6 +195,8 @@ elseif($mybb->input['action'] == "pushalert") {
 			}			
 		}
 	}
+	// Breadcrumb
+	$page->add_breadcrumb_item($lang->customalerts_pushalerts, "index.php?module=".MODULE."&amp;action=pushalert");
 	// header before anything else
 	$page->output_header($lang->customalerts);
 	// errors
