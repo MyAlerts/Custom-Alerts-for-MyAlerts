@@ -226,7 +226,7 @@ elseif($mybb->input['action'] == "pushalert") {
 				"all" => $lang->customalerts_all);
 	$add_methods = $form->generate_select_box("methods[]", $methods_list, $methods, array("multiple"=>true, "id"=>"methods"));
 	$uid = $form->generate_text_box('uids', $userID);
-	$text = $form->generate_text_area('text', $text);
+	$text = $form->generate_text_area('text', $text, array("id" => "text"));
 	$options = $form->generate_check_box('forced', '1', $lang->customalerts_options_forceonuser, array('checked' => 1, 'id' => 'forced'))."<br /><small>{$lang->customalerts_options_forceonuser_desc}</small>";
 	$group = $form->generate_group_select("group[]", $usergroups, array("multiple"=>true));
 	$query = $db->simple_select("users", "uid, username");
@@ -236,7 +236,20 @@ elseif($mybb->input['action'] == "pushalert") {
 	}
 	asort($userarray);
 	$users = $form->generate_select_box("users[]", $userarray, $users, array("multiple"=>true));
-
+	
+	// click&insert function
+	$replacement_fields = array(
+		"{username}" => $lang->customalerts_username,
+		"{date}" => $lang->customalerts_date,
+	);
+	
+	$personalisations = "<script type=\"text/javascript\">\n<!--\ndocument.write('{$lang->customalerts_personalize_message} ";
+	foreach($replacement_fields as $value => $name)
+	{
+		$personalisations .= " [<a href=\"#\" onclick=\"insertText(\'{$value}\', \$(\'text\')); return false;\">{$name}</a>], ";
+	}
+	$personalisations = substr($personalisations, 0, -2)."');\n// --></script>\n";
+	
 	// actually construct the form
 	$form_container->output_row($lang->customalerts_add_methods." <em>*</em>", $lang->customalerts_add_methods_desc, $add_methods);
 	// methods
@@ -244,7 +257,7 @@ elseif($mybb->input['action'] == "pushalert") {
 	$form_container->output_row($lang->customalerts_users, $lang->customalerts_users_desc, $users, 'users', array(), array('id' => 'users'));
 	$form_container->output_row($lang->customalerts_group, $lang->customalerts_group_desc, $group, 'group', array(), array('id' => 'usergroup'));
 	// text
-	$form_container->output_row($lang->customalerts_text, $lang->customalerts_text_desc, $text, 'text');
+	$form_container->output_row($lang->customalerts_text, $personalisations, $text, 'text');
 	// options
 	$form_container->output_row($lang->customalerts_options, "", $options, 'options');
 		
@@ -266,6 +279,24 @@ elseif($mybb->input['action'] == "pushalert") {
 				new Peeker($("methods"), $("uid"), /uid/, false);
 				new Peeker($("methods"), $("usergroup"), /usergroup/, false);
 				new Peeker($("methods"), $("users"), /users/, false);
+			}
+			function insertText(value, textarea)
+			{
+				// Internet Explorer
+				if(document.selection) {
+					textarea.focus();
+					var selection = document.selection.createRange();
+					selection.text = value;
+				}
+				// Firefox
+				else if(textarea.selectionStart || textarea.selectionStart == "0") {
+					var start = textarea.selectionStart;
+					var end = textarea.selectionEnd;
+					textarea.value = textarea.value.substring(0, start)	+ value	+ textarea.value.substring(end, textarea.value.length);
+				}
+				else {
+					textarea.value += value;
+				}
 			}
 		</script>';
 	

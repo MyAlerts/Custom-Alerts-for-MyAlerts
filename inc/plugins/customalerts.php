@@ -169,7 +169,12 @@ function customalerts_parseAlerts(&$alert)
 	
 	if ($alert['alert_type'] == 'custom')
 	{
-		$alert['message'] = $lang->sprintf($lang->customalerts_custom, $alert['user'], $alert['content']['text'], $alert['dateline']);
+		// do the actual replacements
+		$alert['text'] = str_replace("{username}", $alert['user'], $alert['content']['text']);
+		$alert['text'] = str_replace("{date}", $alert['dateline'], $alert['text']);
+		
+		// output the alert
+		$alert['message'] = $lang->sprintf($lang->customalerts_custom, $alert['text']);
 		$alert['rowType'] = 'customAlert';
 	}
 }

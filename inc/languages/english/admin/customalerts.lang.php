@@ -11,6 +11,10 @@ $l['customalerts_pushalerts_desc'] = "Push a new alert to your users according t
 $l['customalerts_documentation'] = "Documentation";
 $l['customalerts_documentation_desc'] = "Full documentation on how to use MyAlerts and Custom Alerts.";
 $l['customalerts_push_button'] = "Alert those user(s)";
+$l['customalerts_username'] = "Your username";
+$l['customalerts_date'] = "Date and time";
+$l['customalerts_personalize_message'] = "Personalize your alert:";
+$l['customalerts_push_button'] = "Alert those user(s)";
 
 // forms & pages stuff
 $l['customalerts_all'] = "Alert all users";
