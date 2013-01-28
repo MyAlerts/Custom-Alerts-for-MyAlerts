@@ -158,8 +158,11 @@ elseif($mybb->input['action'] == "pushalert") {
 			settype($users_uid, "array");
 			settype($users_users, "array");
 			$users = array_unique(array_merge($users_uid, $users_users));
-			$uids = "'".implode("','", $users)."'";
-			$users = "uid IN ({$uids})";
+			// fixes #1
+			if(!empty($users)) {
+				$uids = "'".implode("','", $users)."'";
+				$users = "uid IN ({$uids})";
+			}
 			
 			// our main query
 			if($all) {
