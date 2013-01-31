@@ -163,6 +163,9 @@ elseif($mybb->input['action'] == "pushalert") {
 				$uids = "'".implode("','", $users)."'";
 				$users = "uid IN ({$uids})";
 			}
+			else {
+				$users = "";
+			}
 			
 			// our main query
 			if($all) {
