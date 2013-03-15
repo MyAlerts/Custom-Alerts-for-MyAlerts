@@ -3,8 +3,8 @@ Custom Alerts for MyAlerts
 
 **IMPORTANT**: *Thanks to this GitHub Repo you can track bugfixes and keep your Custom Alerts for MyAlerts copy up to date, but keep in mind that this is a <strong>development version</strong>. Therefore, you may encounter errors and relevant bugs using this version, although I will try to leave its code as functional as possible.*
 
-> **Current version** 1.0.2  
-> **Dependencies** A custom version of MyAlerts, available to download [here][2], and PluginLibrary, which is required to install MyAlerts  
+> **Current version** 1.1  
+> **Dependencies** MyAlerts, available to download [here][1], and PluginLibrary, which is required to install MyAlerts  
 > **Author** Shade  
 > **Special thanks goes to...** euantor who developed MyAlerts, the best notification plugin ever made for MyBB installations.
 
@@ -20,13 +20,9 @@ If you have any feature request, suggestion, or you want to report any issue, pl
 Main features
 -------------
 
-At the moment, Custom Alerts for MyAlerts works in a very simple way: in a dedicated section under Users & Groups module group you can push new notifications to an user or usergroup(s) of your choice. You can choose one or multiple methods of user selection, by UID, by username or by usergroup. If multiple methods are used, alert generation will be chained.
+At the moment, Custom Alerts for MyAlerts works in a very simple way: in a dedicated section under Users & Groups module group you can push new notifications to an user or usergroup(s) of your choice. You can choose one or multiple methods of user selection, by UID, by username, by usergroup or all. If multiple methods are used, alert generation will be chained.
 
-Custom Alerts for MyAlerts adds one setting into ACP and one setting into UCP. A [custom version of MyAlerts][2] *is required* for it to work properly: that's because standard MyAlerts copies need a UCP setting set to "on", whereas with this plugin you are able to "force" the alert display regardless of users settings. This feature may be useful for rules updates you **want** to display to users, or important feature updates and announcements.
-
-*The customizations present in the MyAlerts copy I made will probably be in the next official MyAlerts version: I'd recommend to wait until a MyAlerts official update is out and use this extension + custom MyAlerts version on a test board, just to try it and report bugs or anything else.*
-
-[2]: https://github.com/Shade-/MyAlerts
+Custom Alerts for MyAlerts adds one setting into ACP and one setting into UCP.
 
 Looking forward to the future
 -----------------------------------
