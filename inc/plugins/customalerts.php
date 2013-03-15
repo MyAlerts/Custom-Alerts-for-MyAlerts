@@ -28,7 +28,7 @@ function customalerts_info()
 		'authorsite' => 'http://idevicelab.net/forum',
 		'version' => '1.1',
 		'compatibility' => '16*',
-		'guid' => 'none... yet!'
+		'guid' => '456bd2a816d19700e08f11cab6e27e5f'
 	);
 }
 
