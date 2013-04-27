@@ -78,6 +78,62 @@ if ($mybb->input['action'] == "documentation") {
 	// output it!
 	$table->output($lang->customalerts_documentation);
 }
+/*elseif ($mybb->input['action'] == "logs") {
+	
+	// Breadcrumb
+	$page->add_breadcrumb_item($lang->customalerts_logs, "index.php?module=" . MODULE . "&amp;action=logs");
+	$page->output_header($lang->customalerts);
+	// generate the tab
+	generate_tabs("logs");
+	
+	// construct the main table
+	$table = new Table;
+	
+	// actually construct the table header
+	$table->construct_header($lang->customalerts_logs_alertid, array(
+		"width" => "5%"
+	));
+	$table->construct_header($lang->customalerts_logs_alertfrom, array(
+		"width" => "15%"
+	));
+	$table->construct_header($lang->customalerts_logs_alertto, array(
+		"width" => "15%"
+	));
+	$table->construct_header($lang->customalerts_logs_alertcontent);
+	$table->construct_header($lang->customalerts_logs_status, array(
+		"width" => "5%"
+	));
+	$table->construct_header($lang->customalerts_logs_forced, array(
+		"width" => "5%"
+	));
+	
+	$query = $db->write_query("SELECT a.*, t.uid AS touid, t.username AS toname, t.usergroup AS togroup, t.displaygroup AS todgroup, f.uid AS fromuid, f.username AS fromname, f.usergroup AS fromgroup, f.displaygroup AS fromdgroup FROM ".TABLE_PREFIX."alerts a
+	LEFT JOIN ".TABLE_PREFIX."users t ON (a.uid = t.uid)
+	LEFT JOIN ".TABLE_PREFIX."users f ON (a.from_id = f.uid)
+	ORDER BY a.id");
+		
+	// loop through all alerts
+	while ($alert = $db->fetch_array($query)) {
+		
+		$alert['toname'] = format_name($alert['toname'], $alert['togroup'], $alert['todgroup']);
+    	$alert['toname'] = build_profile_link($alert['toname'], $alert['touid']);
+		$alert['fromname'] = format_name($alert['fromname'], $alert['fromgroup'], $alert['fromdgroup']);
+    	$alert['fromname'] = build_profile_link($alert['fromname'], $alert['fromuid']);
+				
+		$table->construct_cell($alert['id']);
+		$table->construct_cell($alert['fromname']);
+		$table->construct_cell($alert['toname']);
+		$table->construct_cell($alert['content']);
+		$table->construct_cell($alert['unread']);
+		$table->construct_cell($alert['forced']);
+			
+		$table->construct_row();
+	}
+	
+	// output it!
+	$table->output($lang->customalerts_logs);
+	
+}*/
 // Push a new alert directly
 elseif ($mybb->input['action'] == "pushalert") {
 	if ($mybb->request_method == "post") {
@@ -129,16 +185,8 @@ elseif ($mybb->input['action'] == "pushalert") {
 			// we're in ACP baby!
 			require_once MYALERTS_PLUGIN_PATH . 'Alerts.class.php';
 			$Alerts = new Alerts($mybb, $db);
-			
-			$rules_parser = array(
-				"allow_html" => 1,
-				"allow_mycode" => 1,
-				"allow_smilies" => 1,
-				"allow_imgcode" => 1,
-				"parse_badwords" => 1
-			);
-			
-			$alertText = $parser->parse_message($text, $rules_parser);
+						
+			$alertText = $text;
 			
 			// UIDs
 			if (in_array('uid', $methods)) {
@@ -276,10 +324,7 @@ elseif ($mybb->input['action'] == "pushalert") {
 	$text = $form->generate_text_area('text', $text, array(
 		"id" => "text"
 	));
-	$options = $form->generate_check_box('forced', '1', $lang->customalerts_options_forceonuser, array(
-		'checked' => $forced,
-		'id' => 'forced'
-	)) . "<br /><small>{$lang->customalerts_options_forceonuser_desc}</small>";
+	$forceonusers = $form->generate_yes_no_radio('forced', $forced, true);
 	$group = $form->generate_group_select("group[]", $usergroups, array(
 		"multiple" => true
 	));
@@ -319,8 +364,8 @@ elseif ($mybb->input['action'] == "pushalert") {
 	));
 	// text
 	$form_container->output_row($lang->customalerts_text, $personalisations, $text, 'text');
-	// options
-	$form_container->output_row($lang->customalerts_options, "", $options, 'options');
+	// force on users
+	$form_container->output_row($lang->customalerts_options_forceonuser, $lang->customalerts_options_forceonuser_desc, $forceonusers, 'options');
 	
 	$form_container->end();
 	
@@ -402,6 +447,11 @@ function generate_tabs($selected)
 		'link' => "index.php?module=" . MODULE . "&amp;action=pushalert",
 		'description' => $lang->customalerts_pushalerts_desc
 	);
+	/*$sub_tabs['logs'] = array(
+		'title' => $lang->customalerts_logs,
+		'link' => "index.php?module=" . MODULE . "&amp;action=logs",
+		'description' => $lang->customalerts_logs_desc
+	);*/
 	$sub_tabs['documentation'] = array(
 		'title' => $lang->customalerts_documentation,
 		'link' => "index.php?module=" . MODULE . "&amp;action=documentation",
@@ -412,7 +462,7 @@ function generate_tabs($selected)
 }
 
 // debugging stuff
-function debug($data)
+function customalerts_debug($data)
 {
 	echo "<pre>";
 	print_r($data);

@@ -213,9 +213,23 @@ function customalerts_parseAlerts(&$alert)
 	}
 	
 	if ($alert['alert_type'] == 'custom') {
+		
+		require_once  MYBB_ROOT.'inc/class_parser.php';
+    	$parser = new postParser;
+		
+		$options = array(
+			"allow_html" => 1,
+			"allow_mycode" => 1,
+			"allow_smilies" => 1,
+			"allow_imgcode" => 1,
+			"parse_badwords" => 1
+		);
+		
 		// do the actual replacements
 		$alert['text'] = str_replace("{username}", $alert['user'], $alert['content']['text']);
 		$alert['text'] = str_replace("{date}", $alert['dateline'], $alert['text']);
+		
+		$alert['text'] = $parser->parse_message($alert['text'], $options);
 		
 		// output the alert
 		$alert['message'] = $lang->sprintf($lang->customalerts_custom, $alert['text']);
