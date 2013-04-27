@@ -201,7 +201,7 @@ elseif ($mybb->input['action'] == "pushalert") {
 					$separator = " OR ";
 				}
 				
-				$usergroups = implode("','", $usergroups);
+				$usergroups = implode(",", $usergroups);
 				$usergroups = "usergroup IN ({$usergroups})";
 			}
 			// users
