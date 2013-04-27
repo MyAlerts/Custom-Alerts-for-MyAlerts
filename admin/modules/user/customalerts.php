@@ -233,7 +233,10 @@ elseif ($mybb->input['action'] == "pushalert") {
 				}
 				// not forced, select users who wants this type of alerts
 				else {
-					$query = $db->simple_select("alert_setting_values", "user_id", "code = 'custom'");
+					$query = $db->write_query("SELECT a.user_id
+						FROM " . TABLE_PREFIX . "alert_setting_values a
+						LEFT JOIN " . TABLE_PREFIX . "alert_settings s ON (a.setting_id = s.id)
+						WHERE s.code = 'custom'");
 				}
 			}
 			// only specified users... this is truly mindblowing
