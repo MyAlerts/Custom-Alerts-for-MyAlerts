@@ -225,9 +225,21 @@ function customalerts_parseAlerts(&$alert)
 			"parse_badwords" => 1
 		);
 		
-		// do the actual replacements
-		$alert['text'] = str_replace("{username}", $alert['user'], $alert['content']['text']);
-		$alert['text'] = str_replace("{date}", $alert['dateline'], $alert['text']);
+		// format the username
+		$userusername = format_name($mybb->user['username'], $mybb->user['usergroup'], $mybb->user['displaygroup']);
+		$userusername = build_profile_link($userusername, $mybb->user['uid']);
+		
+		$alert['text'] = $alert['content']['text'];		
+		$thingsToReplace = array(
+			"{yourusername}" => $alert['user'],
+			"{userusername}" => $userusername,
+			"{date}" => $alert['dateline']
+		);
+			
+		// replace what needs to be replaced
+		foreach ($thingsToReplace as $find => $replace) {
+			$alert['text'] = str_replace($find, $replace, $alert['text']);
+		}
 		
 		$alert['text'] = $parser->parse_message($alert['text'], $options);
 		

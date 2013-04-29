@@ -14,6 +14,7 @@ $l['customalerts_logs'] = "Logs";
 $l['customalerts_logs_desc'] = "See and manage all notifications pushed to your users.";
 $l['customalerts_push_button'] = "Alert those user(s)";
 $l['customalerts_username'] = "Your username";
+$l['customalerts_receiverusername'] = "Receiver(s) username";
 $l['customalerts_date'] = "Date and time";
 $l['customalerts_personalize_message'] = "Personalize your alert:";
 
