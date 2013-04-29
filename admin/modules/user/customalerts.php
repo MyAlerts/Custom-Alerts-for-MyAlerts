@@ -343,7 +343,7 @@ elseif ($mybb->input['action'] == "pushalert") {
 	
 	// click&insert function
 	$replacement_fields = array(
-		"{yourusername}" => $lang->customalerts_username,
+		"{username}" => $lang->customalerts_username,
 		"{date}" => $lang->customalerts_date,
 		"{userusername}" => $lang->customalerts_receiverusername
 	);

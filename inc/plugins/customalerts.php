@@ -231,7 +231,7 @@ function customalerts_parseAlerts(&$alert)
 		
 		$alert['text'] = $alert['content']['text'];		
 		$thingsToReplace = array(
-			"{yourusername}" => $alert['user'],
+			"{username}" => $alert['user'],
 			"{userusername}" => $userusername,
 			"{date}" => $alert['dateline']
 		);
