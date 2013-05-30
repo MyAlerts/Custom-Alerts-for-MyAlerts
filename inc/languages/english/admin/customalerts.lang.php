@@ -29,18 +29,23 @@ $l['customalerts_group_desc'] = "Select the usergroup(s) you would like to push 
 $l['customalerts_users'] = "Alert by username(s)";
 $l['customalerts_users_desc'] = "Select the user(s) you would like to push the alert to. Hold CTRL to select multiple users.";
 $l['customalerts_options_forceonuser'] = "Force on users";
-$l['customalerts_options_forceonuser_desc'] = "If yes, this option gives you the ability to bypass users settings and display the alert regardless of them. This option is active by default.";
+$l['customalerts_options_forceonuser_desc'] = "If enabled, this option gives you the ability to bypass users settings and display the alert regardless of them. This option is active by default.";
+$l['customalerts_options_notme'] = "Custom sender";
+$l['customalerts_options_notme_desc'] = "If enabled, this option gives you the ability to enter a custom UID who will be the sender of the alert instead of yourself.";
+$l['customalerts_options_senderuid'] = "Sender UID";
+$l['customalerts_options_senderuid_desc'] = "Enter the UID of the user you would like to be the sender of this alert. If you enter an unexisting UID you will be notified and the alert won't be generated. If you left this field blank, you will be the sender of the alert.";
 $l['customalerts_add_methods'] = "Method(s) of generation";
 $l['customalerts_add_methods_desc'] = "Choose the method(s) of the alert generation. Hold CTRL to select multiple methods. See the <a href=\"index.php?module=user-customalerts&action=documentation\">documentation</a> to know how to use this feature.";
 
 // errors & success
 $l['customalerts_error_nouid'] = "You didn't entered any UID.";
-$l['customalerts_error_noexistinguid'] = "One or more User IDs you've entered were invalid. Please ensure that the User IDs exist before attempting to push them a new alert.";
-$l['customalerts_error_nogroup'] = "You didn't selected any usergroup to push a new alert to. Please select one from the selectable list below.";
-$l['customalerts_error_notext'] = "You didn't entered any text for your alert.";
+$l['customalerts_error_noexistinguid'] = "One or more User IDs you've entered are invalid. Please ensure that the User IDs exist before attempting to push them a new alert.";
+$l['customalerts_error_nogroup'] = "You haven't selected any usergroup to push a new alert to. Please select one from the selectable list below.";
+$l['customalerts_error_notext'] = "You haven't entered any text for your alert.";
 $l['customalerts_error_debug'] = "An unknown error occured. Please contact the developer specifying how did you get this error.";
-$l['customalerts_error_nousers'] = "No users were returned from the method(s) of generation you've specified. Please retry.";
-$l['customalerts_error_nomethods'] = "You didn't specified any method.";
+$l['customalerts_error_nousers'] = "No users are returned from the method(s) of generation you've specified. Please retry.";
+$l['customalerts_error_nomethods'] = "You didn't specified any method of alert generation. Pick up one and retry.";
+$l['customalerts_error_noexistingsender'] = "The sender's UID you've entered is invalid. Please ensure that his UID exists before attempting to push a new alert.";
 $l['customalerts_success'] = "The alert was pushed successfully to the specified user(s).";
 $l['customalerts_success_forced'] = "The alert was pushed successfully to the specified user(s) with forcing option set to on, so the user(s) <em>surely</em> received the alert.";
 $l['customalerts_success_group'] = "The alert was pushed successfully to the users in the specified usergroup(s).";
@@ -70,7 +75,9 @@ Eg.: assuming userX where X = UID, if you choose to use both UID and users metho
 The same happens with usergroup method. If you choose to use UID and usergroup methods, an alert will be generated both for users present in the specified usergroups, and for the specified UIDs.";
 $l['customalerts_doc_otherplugins'] =  "Are you having fun? Don't stop!";
 $l['customalerts_doc_otherplugins_desc'] =  "Custom Alerts for MyAlerts isn't the only plugin I've made so far. If you're having fun using it, you should consider having a look at:
-<ul><li><a href=\"http://bit.ly/VuGv2m\">ProjectX</a>, an awesome theme for the Administration Control Panel of MyBB</li>
+<ul><li><a href=\"http://bit.ly/11idGWc\">MyFacebook Connect</a>, the missing free bridge between Facebook and MyBB (Facebook Login for MyBB)</li>
+<li><a href=\"http://bit.ly/11Gh0KX\">MyTwitter Connect</a>, the missing free bridge between Twitter and MyBB (Twitter Login for MyBB)</li>
+<li><a href=\"http://bit.ly/VuGv2m\">ProjectX</a>, an awesome theme for the Administration Control Panel of MyBB</li>
 <li><a href=\"http://bit.ly/YJxSgf\">Moderation Alerts Pack</a>, a collection of 11 extra alert types for MyAlerts related to moderation actions</li>
 <li><a href=\"http://bit.ly/WDFaCD\">Plugins Alerts Pack</a>, a collection of 4 extra alert types (and growing) for MyAlerts related to existing and widely used plugins, including MyNetwork Profile Comments, MySupport, Announcement and core subscriptions</li>
 <li><a href=\"http://bit.ly/XBPPzk\">iDLChat</a>, a revolutionary chat for MyBB currently in development stages</li></ul>";

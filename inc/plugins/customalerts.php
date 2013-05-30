@@ -7,7 +7,7 @@
  * @package Custom Alerts for MyAlerts
  * @author  Shade <legend_k@live.it>
  * @license http://opensource.org/licenses/mit-license.php MIT license (same as MyAlerts)
- * @version 1.1
+ * @version 1.1.1
  */
 
 if (!defined('IN_MYBB')) {
@@ -26,7 +26,7 @@ function customalerts_info()
 		'website' => 'http://github.com/MyAlerts/Custom-Alerts-for-MyAlerts',
 		'author' => 'Shade',
 		'authorsite' => 'http://idevicelab.net/forum',
-		'version' => '1.1',
+		'version' => '1.1.1',
 		'compatibility' => '16*',
 		'guid' => '456bd2a816d19700e08f11cab6e27e5f'
 	);
