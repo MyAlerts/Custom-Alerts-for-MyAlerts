@@ -1,5 +1,17 @@
 <?php
-// header and such
+/**
+ * Custom Alerts for MyAlerts
+ * 
+ * Provides the ability to push custom alerts for @euantor's MyAlerts plugin.
+ *
+ * @package Custom Alerts for MyAlerts
+ * @author  Shade <legend_k@live.it>
+ * @license http://opensource.org/licenses/mit-license.php MIT license (same as MyAlerts)
+ * @version 1.1.1
+ */
+
+
+// Header and such
 $l['customalerts'] = "Custom Alerts";
 $l['customalerts_overview'] = "Overview";
 $l['customalerts_overview_desc'] = "Here you can find all the informations related to this alert system.";
@@ -18,7 +30,7 @@ $l['customalerts_receiverusername'] = "Receiver(s) username";
 $l['customalerts_date'] = "Date and time";
 $l['customalerts_personalize_message'] = "Personalize your alert:";
 
-// forms & pages stuff
+// Forms & Pages stuff
 $l['customalerts_all'] = "Alert all users";
 $l['customalerts_uid'] = "Alert by user ID(s)";
 $l['customalerts_uid_desc'] = "Enter the user IDs you would like to push the alert to. You might insert more than one UID, separated with a coma. Your input will be sanitized and the system will check if any of UIDs entered is invalid. If so, you'll be notified.";
@@ -37,7 +49,7 @@ $l['customalerts_options_senderuid_desc'] = "Enter the UID of the user you would
 $l['customalerts_add_methods'] = "Method(s) of generation";
 $l['customalerts_add_methods_desc'] = "Choose the method(s) of the alert generation. Hold CTRL to select multiple methods. See the <a href=\"index.php?module=user-customalerts&action=documentation\">documentation</a> to know how to use this feature.";
 
-// errors & success
+// Error Messages
 $l['customalerts_error_nouid'] = "You didn't entered any UID.";
 $l['customalerts_error_noexistinguid'] = "One or more User IDs you've entered are invalid. Please ensure that the User IDs exist before attempting to push them a new alert.";
 $l['customalerts_error_nogroup'] = "You haven't selected any usergroup to push a new alert to. Please select one from the selectable list below.";
@@ -46,6 +58,8 @@ $l['customalerts_error_debug'] = "An unknown error occured. Please contact the d
 $l['customalerts_error_nousers'] = "No users are returned from the method(s) of generation you've specified. Please retry.";
 $l['customalerts_error_nomethods'] = "You didn't specified any method of alert generation. Pick up one and retry.";
 $l['customalerts_error_noexistingsender'] = "The sender's UID you've entered is invalid. Please ensure that his UID exists before attempting to push a new alert.";
+
+// Success Messages
 $l['customalerts_success'] = "The alert was pushed successfully to the specified user(s).";
 $l['customalerts_success_forced'] = "The alert was pushed successfully to the specified user(s) with forcing option set to on, so the user(s) <em>surely</em> received the alert.";
 $l['customalerts_success_group'] = "The alert was pushed successfully to the users in the specified usergroup(s).";
@@ -53,7 +67,7 @@ $l['customalerts_success_group_forced'] = "The alert was pushed successfully to 
 $l['customalerts_success_uidandgroup'] = "The alert was pushed successfully to the users in the specified methods.";
 $l['customalerts_success_uidandgroup_forced'] = "The alert was pushed successfully to the users in the specified methods with forcing option set to on, so the users <em>surely</em> received the alert.";
 
-// docs
+// Documentation
 $l['customalerts_doc_info'] = "Information";
 $l['customalerts_doc_description'] = "Description";
 $l['customalerts_doc_overview'] = "Overview";
@@ -82,7 +96,7 @@ $l['customalerts_doc_otherplugins_desc'] =  "Custom Alerts for MyAlerts isn't th
 <li><a href=\"http://bit.ly/WDFaCD\">Plugins Alerts Pack</a>, a collection of 4 extra alert types (and growing) for MyAlerts related to existing and widely used plugins, including MyNetwork Profile Comments, MySupport, Announcement and core subscriptions</li>
 <li><a href=\"http://bit.ly/XBPPzk\">iDLChat</a>, a revolutionary chat for MyBB currently in development stages</li></ul>";
 
-// logs
+// Logs
 $l['customalerts_logs_alertid'] = "#";
 $l['customalerts_logs_alertfrom'] = "From";
 $l['customalerts_logs_alertto'] = "To";

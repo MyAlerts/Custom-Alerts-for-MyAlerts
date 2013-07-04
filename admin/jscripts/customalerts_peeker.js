@@ -1,4 +1,15 @@
 /**
+ * Custom Alerts for MyAlerts
+ * 
+ * Provides the ability to push custom alerts for @euantor's MyAlerts plugin.
+ *
+ * @package Custom Alerts for MyAlerts
+ * @author  Shade <legend_k@live.it>
+ * @license http://opensource.org/licenses/mit-license.php MIT license (same as MyAlerts)
+ * @version 1.1.1
+ */
+
+/**
  * Peeker is a simple class which controls the visibility of something based on a value of a select form. Many thanks to Jones (King Louis) who let me use this.
  *
  * Usage:

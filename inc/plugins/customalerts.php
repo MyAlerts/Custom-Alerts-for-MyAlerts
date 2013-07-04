@@ -10,12 +10,15 @@
  * @version 1.1.1
  */
 
-if (!defined('IN_MYBB')) {
+
+if(!defined('IN_MYBB'))
+{
 	die('Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.');
 }
 
-if (!defined("PLUGINLIBRARY")) {
-	define("PLUGINLIBRARY", MYBB_ROOT . "inc/plugins/pluginlibrary.php");
+if(!defined("PLUGINLIBRARY"))
+{
+	define("PLUGINLIBRARY", MYBB_ROOT."inc/plugins/pluginlibrary.php");
 }
 
 function customalerts_info()
@@ -38,7 +41,8 @@ function customalerts_is_installed()
 	
 	$info = customalerts_info();
 	$installed = $cache->read("shade_plugins");
-	if ($installed[$info['name']]) {
+	if($installed[$info['name']])
+	{
 		return true;
 	}
 }
@@ -47,20 +51,23 @@ function customalerts_install()
 {
 	global $db, $PL, $lang, $mybb, $cache;
 	
-	if (!file_exists(PLUGINLIBRARY)) {
+	if(!file_exists(PLUGINLIBRARY))
+	{
 		flash_message("The selected plugin could not be installed because <a href=\"http://mods.mybb.com/view/pluginlibrary\">PluginLibrary</a> is missing.", "error");
 		admin_redirect("index.php?module=config-plugins");
 	}
 	
-	// check if a random myalerts setting exist - if false, then MyAlerts is not installed, warn the user and redirect him
-	if (!$mybb->settings['myalerts_enabled']) {
+	// Check if a random myalerts setting exist - if false, then MyAlerts is not installed, warn the user and redirect him
+	if(!$mybb->settings['myalerts_enabled'])
+	{
 		flash_message("The selected plugin could not be installed because <a href=\"http://mods.mybb.com/view/myalerts\">MyAlerts</a> is not installed. Moderation Alerts Pack requires MyAlerts to be installed in order to properly work.", "error");
 		admin_redirect("index.php?module=config-plugins");
 	}
 	
 	$PL or require_once PLUGINLIBRARY;
 	
-	if (!$lang->customalerts) {
+	if(!$lang->customalerts)
+	{
 		$lang->load('customalerts');
 	}
 	
@@ -72,20 +79,40 @@ function customalerts_install()
 	);
 	$cache->update('shade_plugins', $shadePlugins);
 	
-	// search for myalerts existing settings and add our custom ones
+	// Search for myalerts existing settings and add our custom ones
 	$query = $db->simple_select("settinggroups", "gid", "name='myalerts'");
 	$gid = intval($db->fetch_field($query, "gid"));
 	
-	$customalerts_settings_1 = array(
+	$settings = array();
+
+	$settings[] = array(
 		"name" => "myalerts_alert_custom",
 		"title" => $lang->customalerts_enabled,
 		"description" => $lang->customalerts_enabled_desc,
 		"optionscode" => "yesno",
-		"value" => "1",
-		"disporder" => "1",
-		"gid" => $gid
+		"value" => "1"
 	);
-	$db->insert_query("settings", $customalerts_settings_1);
+
+	$insert_settings = array();
+
+	$i = 1;
+	foreach($settings as $setting)
+	{
+		$insert['name'] = $db->escape_string($setting['name']);
+		$insert['title'] = $db->escape_string($setting['title']);
+		$insert['description'] = $db->escape_string($setting['description']);
+		$insert['optionscode'] = $db->escape_string($setting['optionscode']);
+		$insert['value'] = $db->escape_string($setting['value']);
+		$insert['disporder'] = $i;
+		$insert['gid'] = $gid;
+
+		$insert_settings[] = $insert;
+
+		$i++;
+	}
+
+	$db->insert_query_multiple('settings', $insert_settings);
+
 	
 	$insertArray = array(
 		0 => array(
@@ -96,17 +123,21 @@ function customalerts_install()
 	$db->insert_query_multiple('alert_settings', $insertArray);
 	
 	$query = $db->simple_select('users', 'uid');
-	while ($uids = $db->fetch_array($query)) {
+	while($uids = $db->fetch_array($query))
+	{
 		$users[] = $uids['uid'];
 	}
 	
 	$query = $db->simple_select("alert_settings", "id", "code IN ('custom')");
-	while ($setting = $db->fetch_array($query)) {
+	while($setting = $db->fetch_array($query))
+	{
 		$settings[] = $setting['id'];
 	}
 	
-	foreach ($users as $user) {
-		foreach ($settings as $setting) {
+	foreach($users as $user)
+	{
+		foreach($settings as $setting)
+		{
 			$userSettings[] = array(
 				'user_id' => (int) $user,
 				'setting_id' => (int) $setting,
@@ -117,7 +148,7 @@ function customalerts_install()
 	
 	$db->insert_query_multiple('alert_setting_values', $userSettings);
 	
-	// rebuild settings
+	// Rebuild ./inc/settings.php
 	rebuild_settings();
 	
 }
@@ -126,51 +157,58 @@ function customalerts_uninstall()
 {
 	global $db, $PL, $cache;
 	
-	if (!file_exists(PLUGINLIBRARY)) {
+	if(!file_exists(PLUGINLIBRARY))
+	{
 		flash_message("The selected plugin could not be uninstalled because <a href=\"http://mods.mybb.com/view/pluginlibrary\">PluginLibrary</a> is missing.", "error");
 		admin_redirect("index.php?module=config-plugins");
 	}
 	
 	$PL or require_once PLUGINLIBRARY;
 	
-	// delete ACP settings
-	$db->write_query("DELETE FROM " . TABLE_PREFIX . "settings WHERE name IN('myalerts_alert_custom')");
+	// Delete ACP settings
+	$db->write_query("DELETE FROM ".TABLE_PREFIX."settings WHERE name IN('myalerts_alert_custom')");
 	
-	// delete existing values
+	// Delete existing values
 	$query = $db->simple_select("alert_settings", "id", "code IN ('custom')");
-	while ($setting = $db->fetch_array($query)) {
+	while($setting = $db->fetch_array($query))
+	{
 		$settings[] = $setting['id'];
 	}
 	$settings = implode(",", $settings);
 	
-	// truly delete them
-	if (!empty($settings)) {
+	// Truly delete them
+	if(!empty($settings))
+	{
 		$db->delete_query("alert_setting_values", "setting_id IN ({$settings})");
 	}
-	// delete UCP settings
+	// Delete UCP settings
 	$db->delete_query("alert_settings", "code IN ('custom')");
 	
 	$info = customalerts_info();
-	// delete the plugin from cache
+	// Delete the plugin from cache
 	$shadePlugins = $cache->read('shade_plugins');
 	unset($shadePlugins[$info['name']]);
 	$cache->update('shade_plugins', $shadePlugins);
-	// rebuild settings
+
+
+	// Rebuild ./inc/settings.php
 	rebuild_settings();
 }
 
-if ($settings['myalerts_enabled'] AND $settings['myalerts_alert_custom']) {
+if($settings['myalerts_enabled'] AND $settings['myalerts_alert_custom'])
+{
 	$plugins->add_hook("admin_user_menu", "customalerts_admin_user_menu");
 	$plugins->add_hook("admin_user_action_handler", "customalerts_admin_user_action_handler");
 }
 
-// load our custom lang file into MyAlerts
+// Load our custom lang file into MyAlerts
 $plugins->add_hook('myalerts_load_lang', 'customalerts_load_lang');
 function customalerts_load_lang()
 {
 	global $lang;
 	
-	if (!$lang->customalerts) {
+	if(!$lang->customalerts)
+	{
 		$lang->load('customalerts');
 	}
 }
@@ -179,7 +217,8 @@ function customalerts_admin_user_menu($sub_menu)
 {
 	global $lang;
 	
-	if (!$lang->customalerts) {
+	if(!$lang->customalerts)
+	{
 		$lang->load('customalerts');
 	}
 	
@@ -202,17 +241,19 @@ function customalerts_admin_user_action_handler($actions)
 	return $actions;
 }
 
-// generate text and such
+// Generate text and such
 $plugins->add_hook('myalerts_alerts_output_start', 'customalerts_parseAlerts');
 function customalerts_parseAlerts(&$alert)
 {
 	global $mybb, $lang;
 	
-	if (!$lang->customalerts) {
+	if(!$lang->customalerts)
+	{
 		$lang->load('customalerts');
 	}
 	
-	if ($alert['alert_type'] == 'custom') {
+	if($alert['alert_type'] == 'custom')
+	{
 		
 		require_once  MYBB_ROOT.'inc/class_parser.php';
     	$parser = new postParser;
@@ -225,7 +266,7 @@ function customalerts_parseAlerts(&$alert)
 			"parse_badwords" => 1
 		);
 		
-		// format the username
+		// Format the username
 		$userusername = format_name($mybb->user['username'], $mybb->user['usergroup'], $mybb->user['displaygroup']);
 		$userusername = build_profile_link($userusername, $mybb->user['uid']);
 		
@@ -236,14 +277,15 @@ function customalerts_parseAlerts(&$alert)
 			"{date}" => $alert['dateline']
 		);
 			
-		// replace what needs to be replaced
-		foreach ($thingsToReplace as $find => $replace) {
+		// Replace what needs to be replaced
+		foreach($thingsToReplace as $find => $replace)
+		{
 			$alert['text'] = str_replace($find, $replace, $alert['text']);
 		}
 		
 		$alert['text'] = $parser->parse_message($alert['text'], $options);
 		
-		// output the alert
+		// Output the alert
 		$alert['message'] = $lang->sprintf($lang->customalerts_custom, $alert['text']);
 		$alert['rowType'] = 'customAlert';
 	}

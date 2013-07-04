@@ -8,88 +8,91 @@
  * @author  Shade <legend_k@live.it>
  * @license http://opensource.org/licenses/mit-license.php MIT license (same as MyAlerts)
  * @version 1.1.1
- * @module MYBB_ROOT/admin/modules/user/customalerts.php
  */
 
-if (!defined('IN_MYBB')) {
+
+if(!defined('IN_MYBB'))
+{
 	header("HTTP/1.0 404 Not Found");
 	exit;
 }
 
-if (!defined("PLUGINLIBRARY")) {
-	define("PLUGINLIBRARY", MYBB_ROOT . "inc/plugins/pluginlibrary.php");
+if(!defined("PLUGINLIBRARY"))
+{
+	define("PLUGINLIBRARY", MYBB_ROOT."inc/plugins/pluginlibrary.php");
 }
 
 define(MODULE, "user-customalerts");
 
 $PL or require_once PLUGINLIBRARY;
-// require useful class
-require_once MYBB_ROOT . "inc/class_parser.php";
+// Require useful class
+require_once MYBB_ROOT."inc/class_parser.php";
 $parser = new postParser;
 
 $lang->load("customalerts");
 
 // Breadcrumb
-$page->add_breadcrumb_item($lang->customalerts, "index.php?module=" . MODULE);
+$page->add_breadcrumb_item($lang->customalerts, "index.php?module=".MODULE);
 
 // Begin!
-// Docs
-if ($mybb->input['action'] == "documentation") {
+// Documentation
+if($mybb->input['action'] == "documentation")
+{
 	// Breadcrumb
-	$page->add_breadcrumb_item($lang->customalerts_documentation, "index.php?module=" . MODULE . "&amp;action=documentation");
+	$page->add_breadcrumb_item($lang->customalerts_documentation, "index.php?module=".MODULE."&amp;action=documentation");
 	$page->output_header($lang->customalerts);
-	// generate the tab
+	// Generate the tab
 	generate_tabs("documentation");
 	
-	// construct the main table
+	// Construct the main table
 	$table = new Table;
 	
-	// actually construct the table header
+	// Actually construct the table header
 	$table->construct_header($lang->customalerts_doc_info, array(
 		"width" => "25%"
 	));
 	$table->construct_header($lang->customalerts_doc_description);
 	
-	// overview
+	// Overview
 	$table->construct_cell($lang->customalerts_doc_overview);
 	$table->construct_cell($lang->customalerts_doc_overview_desc);
 	$table->construct_row();
 	
-	// features
+	// Features
 	$table->construct_cell($lang->customalerts_doc_features);
 	$table->construct_cell($lang->customalerts_doc_features_desc);
 	$table->construct_row();
 	
-	// new alert
+	// New alert
 	$table->construct_cell($lang->customalerts_doc_newalert);
 	$table->construct_cell($lang->customalerts_doc_newalert_desc);
 	$table->construct_row();
 	
-	// methods
+	// Methods
 	$table->construct_cell($lang->customalerts_doc_methods);
 	$table->construct_cell($lang->customalerts_doc_methods_desc);
 	$table->construct_row();
 	
-	// let's spread the word a bit ;)
+	// Let's spread the word a bit ;)
 	$table->construct_cell($lang->customalerts_doc_otherplugins);
 	$table->construct_cell($lang->customalerts_doc_otherplugins_desc);
 	$table->construct_row();
 	
-	// output it!
+	// Output it!
 	$table->output($lang->customalerts_documentation);
 }
-/*elseif ($mybb->input['action'] == "logs") {
-	
+/*elseif($mybb->input['action'] == "logs")
+{	
 	// Breadcrumb
-	$page->add_breadcrumb_item($lang->customalerts_logs, "index.php?module=" . MODULE . "&amp;action=logs");
+	$page->add_breadcrumb_item($lang->customalerts_logs, "index.php?module=".MODULE."&amp;action=logs");
 	$page->output_header($lang->customalerts);
-	// generate the tab
+	// Generate the tab
 	generate_tabs("logs");
 	
-	// construct the main table
+	// Construct the main table
 	$table = new Table;
 	
-	// actually construct the table header
+	// Actually construct the table header
 	$table->construct_header($lang->customalerts_logs_alertid, array(
 		"width" => "5%"
 	));
@@ -112,9 +115,9 @@ if ($mybb->input['action'] == "documentation") {
 	LEFT JOIN ".TABLE_PREFIX."users f ON (a.from_id = f.uid)
 	ORDER BY a.id");
 		
-	// loop through all alerts
-	while ($alert = $db->fetch_array($query)) {
-		
+	// Loop through all alerts
+	while($alert = $db->fetch_array($query))
+	{	
 		$alert['toname'] = format_name($alert['toname'], $alert['togroup'], $alert['todgroup']);
     	$alert['toname'] = build_profile_link($alert['toname'], $alert['touid']);
 		$alert['fromname'] = format_name($alert['fromname'], $alert['fromgroup'], $alert['fromdgroup']);
@@ -130,14 +133,16 @@ if ($mybb->input['action'] == "documentation") {
 		$table->construct_row();
 	}
 	
-	// output it!
+	// Output it!
 	$table->output($lang->customalerts_logs);
 	
 }*/
 // Push a new alert directly
-elseif ($mybb->input['action'] == "pushalert") {
-	if ($mybb->request_method == "post") {
-		// casting is funny!
+elseif($mybb->input['action'] == "pushalert")
+{
+	if($mybb->request_method == "post")
+	{
+		// Who knew casting was so funny?
 		$methods = (array) $mybb->input['methods'];
 		$usergroups = (array) $mybb->input['group'];
 		$users = (array) $mybb->input['users'];
@@ -147,215 +152,268 @@ elseif ($mybb->input['action'] == "pushalert") {
 		$userids = (string) $mybb->input['uids'];
 		$text = (string) $mybb->input['text'];
 		
-		// errors
-		// no methods
-		if (!$methods) {
+		// Errors
+		// No methods
+		if(!$methods)
+		{
 			$errors[] = $lang->customalerts_error_nomethods;
 		}
-		// no/unexisting UIDs
-		if (in_array('uid', $methods)) {
-			
-			// clean up the string from whitespaces
+		// No/unexisting UIDs
+		if(in_array('uid', $methods))
+		{
+			// Clean up the string from whitespaces
 			$userids = preg_replace("/[^0-9,]/", "", $userids);
-			// split them in an array and clean it up
+			// Split them in an array and clean it up
 			$_users = array_values(array_filter(explode(",", $userids)));
 			
-			if (empty($_users)) {
+			if(empty($_users)){
 				$errors[] = $lang->customalerts_error_nouid;
 			}
 			
-			// does those users even exist?
-			foreach ($_users as $user) {
-				if (!user_exists($user)) {
+			// Does those users even exist?
+			foreach($_users as $user)
+			{
+				if(!user_exists($user))
+				{
 					$errors[] = $lang->customalerts_error_noexistinguid;
 					break;
 				}
 			}
 		}
-		// no usergroups
-		if (in_array('usergroup', $methods) AND empty($usergroups)) {
+		// No usergroups
+		if(in_array('usergroup', $methods) AND empty($usergroups))
+		{
 			$errors[] = $lang->customalerts_error_nogroup;
 		}
-		// no text
-		if (empty($text)) {
+
+		// No text
+		if(empty($text))
+		{
 			$errors[] = $lang->customalerts_error_notext;
 		}
-		// unexisting sender's ID
-		if (!empty($notme) AND !empty($fromid) AND !user_exists($fromid)) {
+
+		// Unexisting sender's ID
+		if(!empty($notme) AND !empty($fromid) AND !user_exists($fromid))
+		{
 			$errors[] = $lang->customalerts_error_noexistingsender;
 		}
-		if (!$errors) {
-			// we're in ACP baby!
-			require_once MYALERTS_PLUGIN_PATH . 'Alerts.class.php';
+		if(!$errors)
+		{
+			// We're in ACP baby!
+			require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';
 			$Alerts = new Alerts($mybb, $db);
 			$users_uid = array();
 			$users_users = array();
 			
 			// UIDs
-			if (in_array('uid', $methods)) {
-				// clean up the string from whitespaces
+			if(in_array('uid', $methods))
+			{
+				// Clean up the string from whitespaces
 				$userids = preg_replace("/[^0-9,]/", "", $userids);
-				// split them in an array and clean it up
+				// Split them in an array and clean it up
 				$users_uid = array_values(array_filter(explode(",", $userids)));
 			}
-			// usergroup
-			if (in_array('usergroup', $methods)) {
-				if (count($methods) > 1) {
+
+			// Usergroup
+			if(in_array('usergroup', $methods))
+			{
+				if(count($methods) > 1)
+				{
 					$separator = " OR ";
 				}
 				
 				$_usergroups = implode(",", $usergroups);
 				$_usergroups = "usergroup IN ({$_usergroups})";
 			}
-			// users
-			if (in_array('users', $methods)) {
+			// Users
+			if(in_array('users', $methods))
+			{
 				$users_users = $users;
 			}
-			// all
-			if (in_array('all', $methods)) {
+			// All
+			if(in_array('all', $methods))
+			{
 				$all = 1;
 			}
 			
-			// having some fun with arrays!
+			// Having some fun with arrays!
 			$users = array_unique(array_merge($users_uid, $users_users));
-			// fixes #1
-			if (!empty($users)) {
+			// Fixes #1
+			if(!empty($users))
+			{
 				$uids = implode(",", $users);
 				$users = "uid IN ({$uids})";
-			} else {
+			}
+			else
+			{
 				$users = "";
 			}
 			
-			// our main query
-			if ($all) {
-				// forced, select all users (#1)
-				if ($forced) {
+			// Our main query
+			if($all)
+			{
+				// Forced, select all users (#1)
+				if($forced)
+				{
 					$query = $db->simple_select("users", "uid");
 				}
-				// not forced, select users who wants this type of alerts
+				// Not forced, select users who wants this type of alerts
 				else {
 					$query = $db->write_query("SELECT a.user_id
-						FROM " . TABLE_PREFIX . "alert_setting_values a
-						LEFT JOIN " . TABLE_PREFIX . "alert_settings s ON (a.setting_id = s.id)
+						FROM ".TABLE_PREFIX."alert_setting_values a
+						LEFT JOIN ".TABLE_PREFIX."alert_settings s ON (a.setting_id = s.id)
 						WHERE s.code = 'custom'");
 				}
 			}
-			// only specified users... this is truly mindblowing
+			// Only specified users... this is truly mindblowing
 			else {
-				// whether is forced (#2) ...
-				if ($forced) {
+				// Whether is forced (#2) ...
+				if($forced)
+				{
 					$query = $db->simple_select("users", "uid", "{$users}{$separator}{$_usergroups}");
 				}
+
 				// ... or not!
-				else {
-					// we must specify "u." before our puzzle's pieces
-					if (!empty($users)) {
-						$users = "u." . $users;
+				else
+				{
+					// We must specify "u." before our puzzle's pieces
+					if(!empty($users))
+					{
+						$users = "u.".$users;
 					}
-					if (!empty($usergroups)) {
-						$usergroups = "u." . $usergroups;
+					if(!empty($usergroups))
+					{
+						$usergroups = "u.".$usergroups;
 					}
-					// let's do it!
+					// Let's do it!
 					$query = $db->write_query("SELECT a.user_id
-						FROM " . TABLE_PREFIX . "alert_setting_values a
-						LEFT JOIN " . TABLE_PREFIX . "users u ON (a.user_id = u.uid)
-						LEFT JOIN " . TABLE_PREFIX . "alert_settings s ON (a.setting_id = s.id)
+						FROM ".TABLE_PREFIX."alert_setting_values a
+						LEFT JOIN ".TABLE_PREFIX."users u ON (a.user_id = u.uid)
+						LEFT JOIN ".TABLE_PREFIX."alert_settings s ON (a.setting_id = s.id)
 						WHERE s.code = 'custom' AND a.value <> 0 AND ({$users}{$separator}{$usergroups})");
 				}
 			}
 			
-			// let's build our users array
+			// Let's build our users array
 			$users = array();
-			while ($user = $db->fetch_array($query)) {
+			while($user = $db->fetch_array($query))
+			{
 				// #3 "is forced" check
-				if ($forced) {
+				if($forced)
+				{
 					$users[] = $user['uid'];
-				} else {
+				}
+				else
+				{
 					$users[] = $user['user_id'];
 				}
 			}
 			
-			// finally push the alert
-			if (!empty($users)) {
-				// either "notme" option is disabled or there's no UID
-				if(empty($fromid) OR empty($notme)) {
+			// Finally push the alert
+			if(!empty($users))
+			{
+				// Either "notme" option is disabled or there's no UID
+				if(empty($fromid) OR empty($notme))
+				{
 					$fromid = $mybb->user['uid'];
 				}
 				$Alerts->addMassAlert((array) $users, "custom", 0, (int) $fromid, array(
 					'text' => $text
 				), $forced);
 			}
-			// oops, no users here
-			else {
+			// Oops, no users here
+			else
+			{
 				$errors[] = $lang->customalerts_error_nousers;
 			}
 			
-			// errors won't stop here
-			if (!$errors) {
-				// output a friendly successful message, #4 and final forced check
-				if ($forced) {
+			// Errors won't stop here
+			if(!$errors)
+			{
+				// Output a friendly successful message, #4 and final forced check
+				if($forced)
+				{
 					flash_message($lang->customalerts_success_uidandgroup_forced, 'success');
-					admin_redirect("index.php?module=" . MODULE . "&amp;action=pushalert");
-				} else {
+					admin_redirect("index.php?module=".MODULE."&amp;action=pushalert");
+				}
+				else
+				{
 					flash_message($lang->customalerts_success_uidandgroup, 'success');
-					admin_redirect("index.php?module=" . MODULE . "&amp;action=pushalert");
+					admin_redirect("index.php?module=".MODULE."&amp;action=pushalert");
 				}
 			}
 		}
 	}
+
 	// Breadcrumb
-	$page->add_breadcrumb_item($lang->customalerts_pushalerts, "index.php?module=" . MODULE . "&amp;action=pushalert");
-	// header before anything else
+	$page->add_breadcrumb_item($lang->customalerts_pushalerts, "index.php?module=".MODULE."&amp;action=pushalert");
+
+	// Header before anything else
 	$page->output_header($lang->customalerts);
-	// errors
-	if ($errors) {
+
+	// Errors
+	if($errors)
+	{
 		$page->output_inline_error($errors);
 	}
-	// generate the tab
+
+	// Generate the tab
 	generate_tabs("pushalerts");
-	// construct the main form
-	$form = new Form("index.php?module=" . MODULE . "&amp;action=pushalert", "post");
+
+	// Construct the main form
+	$form = new Form("index.php?module=".MODULE."&amp;action=pushalert", "post");
 	$form_container = new FormContainer($lang->customalerts_pushalerts);
 	
-	// store things in variables to clean up the code
+	// Store things in variables to clean up the code
 	$methods_list = array(
 		"uid" => $lang->customalerts_uid,
 		"usergroup" => $lang->customalerts_group,
 		"users" => $lang->customalerts_users,
 		"all" => $lang->customalerts_all
 	);
+
 	/* METHODS */
-	// picker
+
+	// Picker
 	$add_methods = $form->generate_select_box("methods[]", $methods_list, $methods, array(
 		"multiple" => true,
 		"id" => "methods"
 	));
-	// uids
+
+	// Uids
 	$uid = $form->generate_text_box('uids', $userids);
 	$text = $form->generate_text_area('text', $text, array(
 		"id" => "text"
 	));
-	// usergroups
+	
+	// Usergroups
 	$group = $form->generate_group_select("group[]", $usergroups, array(
 		"multiple" => true
 	));
-	// users
+
+	// Users
 	$query = $db->simple_select("users", "uid, username");
-	while ($user = $db->fetch_array($query)) {
+	while($user = $db->fetch_array($query))
+	{
 		$userarray[$user['uid']] = $user['username'];
 	}
 	asort($userarray);
 	$users = $form->generate_select_box("users[]", $userarray, $users, array(
 		"multiple" => true
 	));
+
+
 	/* OPTIONS */
-	// force on users
+
+	// Force on users
 	$forceonusers = $form->generate_yes_no_radio('forced', $forced, true);
-	// sender uid
-	if(empty($notme)) {
+	// Sender uid
+	if(empty($notme))
+	{
 		$notme = 0;
 	}
-	if(empty($fromid)) {
+	if(empty($fromid))
+	{
 		$fromid = "";
 	}
 	$notmeoption = $form->generate_yes_no_radio('notme', $notme, true, array(
@@ -365,22 +423,24 @@ elseif ($mybb->input['action'] == "pushalert") {
 	));
 	$senderuid = $form->generate_text_box('fromid', $fromid);
 	
-	// click&insert function
+	// Click&insert function
 	$replacement_fields = array(
 		"{username}" => $lang->customalerts_username,
 		"{date}" => $lang->customalerts_date,
 		"{userusername}" => $lang->customalerts_receiverusername
 	);	
 	$personalisations = "<script type=\"text/javascript\">\n<!--\ndocument.write('{$lang->customalerts_personalize_message} ";
-	foreach ($replacement_fields as $value => $name) {
+	foreach($replacement_fields as $value => $name)
+	{
 		$personalisations .= " [<a href=\"#\" onclick=\"insertText(\'{$value}\', \$(\'text\')); return false;\">{$name}</a>], ";
 	}
-	$personalisations = substr($personalisations, 0, -2) . "');\n// --></script>\n";
+	$personalisations = substr($personalisations, 0, -2)."');\n// --></script>\n";
 	
-	// actually construct the form
-	// picker
-	$form_container->output_row($lang->customalerts_add_methods . " <em>*</em>", $lang->customalerts_add_methods_desc, $add_methods);
-	// methods
+	// Actually construct the form
+	// Picker
+	$form_container->output_row($lang->customalerts_add_methods." <em>*</em>", $lang->customalerts_add_methods_desc, $add_methods);
+	
+	// Methods
 	$form_container->output_row($lang->customalerts_uid, $lang->customalerts_uid_desc, $uid, 'uid', array(), array(
 		'id' => 'uid'
 	));
@@ -390,9 +450,11 @@ elseif ($mybb->input['action'] == "pushalert") {
 	$form_container->output_row($lang->customalerts_group, $lang->customalerts_group_desc, $group, 'group', array(), array(
 		'id' => 'usergroup'
 	));
-	// textarea
+
+	// Textarea
 	$form_container->output_row($lang->customalerts_text, $personalisations, $text, 'text');
-	// options
+	
+	// Options
 	$form_container->output_row($lang->customalerts_options_forceonuser, $lang->customalerts_options_forceonuser_desc, $forceonusers, 'forceonusers');
 	$form_container->output_row($lang->customalerts_options_notme, $lang->customalerts_options_notme_desc, $notmeoption, 'notmerow');
 	$form_container->output_row($lang->customalerts_options_senderuid, $lang->customalerts_options_senderuid_desc, $senderuid, 'fromid', array(), array(
@@ -409,7 +471,8 @@ elseif ($mybb->input['action'] == "pushalert") {
 	
 	echo '<script type="text/javascript" src="./jscripts/customalerts_peeker.js"></script>
 		<script type="text/javascript">
-			Event.observe(window, "load", function() {
+			Event.observe(window, "load", function()
+			{
 				loadPeekers();
 			});
 			function loadPeekers()
@@ -422,18 +485,21 @@ elseif ($mybb->input['action'] == "pushalert") {
 			function insertText(value, textarea)
 			{
 				// Internet Explorer
-				if(document.selection) {
+				if(document.selection)
+				{
 					textarea.focus();
 					var selection = document.selection.createRange();
 					selection.text = value;
 				}
 				// Firefox
-				else if(textarea.selectionStart || textarea.selectionStart == "0") {
+				else if(textarea.selectionStart || textarea.selectionStart == "0")
+				{
 					var start = textarea.selectionStart;
 					var end = textarea.selectionEnd;
 					textarea.value = textarea.value.substring(0, start)	+ value	+ textarea.value.substring(end, textarea.value.length);
 				}
-				else {
+				else
+				{
 					textarea.value += value;
 				}
 			}
@@ -441,23 +507,24 @@ elseif ($mybb->input['action'] == "pushalert") {
 	
 }
 // Overview
-else {
+else
+{
 	
 	$page->output_header($lang->customalerts);
-	// generate the tab
+	// Generate the tab
 	generate_tabs("overview");
 	
-	// construct the main table
+	// Construct the main table
 	$table = new Table;
 	
-	// actually construct the table header
+	// Actually construct the table header
 	$table->construct_header($lang->customalerts_overview);
 	
-	// info
+	// Info
 	$table->construct_cell($lang->customalerts_overview_innerdesc);
 	$table->construct_row();
 	
-	// output it!
+	// Output it!
 	$table->output($lang->customalerts);
 	
 }
@@ -472,29 +539,31 @@ function generate_tabs($selected)
 	$sub_tabs = array();
 	$sub_tabs['overview'] = array(
 		'title' => $lang->customalerts_overview,
-		'link' => "index.php?module=" . MODULE,
+		'link' => "index.php?module=".MODULE,
 		'description' => $lang->customalerts_overview_desc
 	);
 	$sub_tabs['pushalerts'] = array(
 		'title' => $lang->customalerts_pushalerts,
-		'link' => "index.php?module=" . MODULE . "&amp;action=pushalert",
+		'link' => "index.php?module=".MODULE."&amp;action=pushalert",
 		'description' => $lang->customalerts_pushalerts_desc
 	);
-	/*$sub_tabs['logs'] = array(
+	/*
+	$sub_tabs['logs'] = array(
 		'title' => $lang->customalerts_logs,
-		'link' => "index.php?module=" . MODULE . "&amp;action=logs",
+		'link' => "index.php?module=".MODULE."&amp;action=logs",
 		'description' => $lang->customalerts_logs_desc
-	);*/
+	);
+	*/
 	$sub_tabs['documentation'] = array(
 		'title' => $lang->customalerts_documentation,
-		'link' => "index.php?module=" . MODULE . "&amp;action=documentation",
+		'link' => "index.php?module=".MODULE."&amp;action=documentation",
 		'description' => $lang->customalerts_documentation_desc
 	);
 	
 	$page->output_nav_tabs($sub_tabs, $selected);
 }
 
-// debugging stuff
+// Debugging stuff
 function customalerts_debug($data)
 {
 	echo "<pre>";
