@@ -223,7 +223,7 @@ elseif($mybb->input['action'] == "pushalert")
 				}
 				
 				$_usergroups = implode(",", $usergroups);
-				$_usergroups = "usergroup IN ({$_usergroups})";
+				$_usergroups = "CONCAT(',',additionalgroups,',') LIKE '%,{$_usergroups},%' OR usergroup IN ({$_usergroups})";
 			}
 			// Users
 			if(in_array('users', $methods))
