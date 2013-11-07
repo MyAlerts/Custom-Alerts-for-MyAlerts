@@ -28,7 +28,7 @@ function customalerts_info()
 		'description' => 'Provides the ability to push to your users custom alerts for @euantor\'s <a href="http://community.mybb.com/thread-127444.html"><b>MyAlerts</b></a> plugin.<br /><span style="color:#f00">MyAlerts is required for Custom Alerts for MyAlerts to work</span>.',
 		'website' => 'http://github.com/MyAlerts/Custom-Alerts-for-MyAlerts',
 		'author' => 'Shade',
-		'authorsite' => 'http://idevicelab.net/forum',
+		'authorsite' => '',
 		'version' => '1.1.1',
 		'compatibility' => '16*',
 		'guid' => '456bd2a816d19700e08f11cab6e27e5f'
